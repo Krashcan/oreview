@@ -53,7 +53,7 @@ func main(){
 }
 
 func GetFileNames(w http.ResponseWriter,r *http.Request,_ httprouter.Params){
-	t,err := template.ParseFiles(os.Getenv("GOPATH")+"/src/github.com/krashcan/oreview/template/index.html")
+	t,err := template.ParseFiles("template/index.html")
 	if err!=nil{
 		log.Fatal(err)
 	}
@@ -71,7 +71,7 @@ func ProcessFileNames(w http.ResponseWriter,r *http.Request,_ httprouter.Params)
     	wg.Add(1)
     }
     wg.Wait()
-    t,err := template.ParseFiles(os.Getenv("GOPATH")+"/src/github.com/krashcan/oreview/template/movies.tpl") 
+    t,err := template.ParseFiles("template/movies.tpl") 
 	if(err!=nil){
 		log.Fatal(err)
 	}
