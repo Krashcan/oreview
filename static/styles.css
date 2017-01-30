@@ -1,0 +1,9 @@
+.movie{
+	font-family: monospace;
+}
+.image{
+	float: left;
+}
+.clearfix{
+	clear: both;
+}

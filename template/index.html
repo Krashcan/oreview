@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Krash Movie</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+</head>
+<body>
+    <input type="file" id="getfiles" webkitdirectory directory multiple 
+           onchange="CheckFile();" />
+
+    <form method="POST" action="/">
+        <input type="hidden" name="files" id="postnames" value="" />
+        <input type="submit" value="Submit"/>
+    </form>
+    <script>
+        function CheckFile(){
+            var extension = ["mkv","flv","avi","mp4","mpg","mpeg","3gp"];
+            var text ="";
+            for(i=0;i<Object.keys($('#getfiles').get(0).files).length;i++){
+                
+                var fileName = $('#getfiles').get(0).files[i].name
+                var fileExtension = fileName.substr(fileName.lastIndexOf(".")+1);
+                if ($.inArray(fileExtension,extension) != -1){
+                    text += fileName.substring(0,fileName.lastIndexOf(".")) + "$`&";
+                }
+            }
+            document.getElementById('postnames').value = text;
+        }
+    </script>
+</body>
+</html>
