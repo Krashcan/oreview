@@ -94,7 +94,7 @@ func GetTitleAndYear(url string,wg *sync.WaitGroup){
 	}
 	defer resp.Body.Close()
 	movie.Id = ""
-	
+	fmt.Println(url)
 	body,_:= ioutil.ReadAll(resp.Body)
 	data := string(body)
 	y:= strings.Index(data,"},{")
@@ -109,6 +109,7 @@ func GetTitleAndYear(url string,wg *sync.WaitGroup){
 	if err := jsonParser.Decode(&movie); err!=nil{
 		fmt.Println("Parsing config file: ",err)
 	}
+	fmt.Println(movie.Id)
 	if movie.Id == ""{
 		return
 	}
