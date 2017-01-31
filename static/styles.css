@@ -1,3 +1,10 @@
+.logo{
+	font-family: 'chunky',Times,serif;
+	font-size: 14vw;
+	padding:10px;
+	text-align: center;
+	color: #2185D0;
+}
 .movie{
 	font-family: monospace;
 }
@@ -6,4 +13,26 @@
 }
 .clearfix{
 	clear: both;
+}
+
+.ui.action.input input[type="file"] {
+    display: none;
+}
+
+.bar{
+	max-width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.centrebutton{ text-align: center; }
+
+@font-face
+{
+font-family: chunky;
+src: url('../static/chunky.ttf');
+}
+footer{
+	margin: 100px 0 0 0;
+	text-align: center;
 }

@@ -44,7 +44,7 @@ func main(){
 
 	router.GET("/",GetFileNames)
 	router.POST("/",ProcessFileNames)
-	router.ServeFiles("/static/*filepath",http.Dir(os.Getenv("GOPATH")+"/src/github.com/krashcan/oreview/static/"))
+	router.ServeFiles("/static/*filepath",http.Dir("static/"))
 	port := os.Getenv("PORT")
 	if port == "" {
 	  	port = "8080"

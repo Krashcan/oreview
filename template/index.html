@@ -2,31 +2,44 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Krash Movie</title>
+    <title>Oreview</title>
+    <link type="text/css" rel="stylesheet" href="/static/semantic/semantic.min.css">
+    <link type = "text/css" rel="stylesheet" href="/static/styles.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="/static/semantic/semantic.min.js"></script>
 </head>
 <body>
-    <input type="file" id="getfiles" webkitdirectory directory multiple 
-           onchange="CheckFile();" />
+    <header>
+            <div class="logo">
+                <p>Oreview</p>
+            </div>
+    </header>
+    <div class="ui basic segment">
+        <div class="ui bar massive fluid action input">
+            <input type="text" placeholder="Select your folder containing movies" readonly>
+            <input type="file" id="getfiles"  webkitdirectory directory multiple 
+           onchange="CheckFile();" /> 
+            <div class="ui massive icon button">
+                <i class="cloud upload icon"></i>
+            </div>
+        </div>
+    </div>
+
+    
 
     <form method="POST" action="/">
         <input type="hidden" name="files" id="postnames" value="" />
-        <input type="submit" value="Submit"/>
+        <div class = "centrebutton">
+            <button type="submit" class="ui labeled massive icon button primary submit">
+                <i class="find icon"></i>
+                Oreview
+            </button>
+        </div>
     </form>
-    <script>
-        function CheckFile(){
-            var extension = ["mkv","flv","avi","mp4","mpg","mpeg","3gp"];
-            var text ="";
-            for(i=0;i<Object.keys($('#getfiles').get(0).files).length;i++){
-                
-                var fileName = $('#getfiles').get(0).files[i].name
-                var fileExtension = fileName.substr(fileName.lastIndexOf(".")+1);
-                if ($.inArray(fileExtension,extension) != -1){
-                    text += fileName.substring(0,fileName.lastIndexOf(".")) + "$`&";
-                }
-            }
-            document.getElementById('postnames').value = text;
-        }
-    </script>
+    <script src="../static/su.js"></script>
+    <footer>
+        <i class="star icon"></i> and Contribute on <a href="#">Github</a><br>
+        <i class="copyright icon"></i>Licensed by <a href="#">MIT</a>
+    </footer>
 </body>
 </html>
