@@ -7,8 +7,7 @@ $('input:text, .ui.button', '.ui.action.input')
 $('input:file', '.ui.action.input')
 	.on('change', function(e) {
         var count = e.target.files.length;
-    	var name = e.target.files[0].name + " + " + count +" other items";
-    	$('input:text', $(e.target).parent()).val(name);
+    	
 	});
 
 function CheckFile(){
