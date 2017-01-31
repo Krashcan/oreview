@@ -3,7 +3,6 @@ package main
 import(
 	"log"
 	"os"
-	"golang.org/x/net/html"
 	"encoding/json"
 	"html/template"
 	"net/http"
@@ -12,6 +11,7 @@ import(
 	"fmt"
 	"sync"
 	"strconv"
+	"io/ioutil"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -32,10 +32,7 @@ type node struct{
 	Right *(node) 
 }
 
-var movie struct{
-	Name string;
-	Year string;
-}
+
 var root *node
 var Movies []fileInfo
 
@@ -67,7 +64,7 @@ func ProcessFileNames(w http.ResponseWriter,r *http.Request,_ httprouter.Params)
 	queryNames := strings.Split(rawMovies,"$`&")
 
 	for i:=0;i<len(queryNames)-1;i++{
-		go GetTitleAndYear("https://opensubtitles.co/search?q=" + url.QueryEscape(queryNames[i]),wg)
+		go GetTitleAndYear("https://www.opensubtitles.org/libs/suggest.php?format=json3&MovieName=" + url.QueryEscape(queryNames[i]),wg)
     	wg.Add(1)
     }
     wg.Wait()
@@ -85,6 +82,9 @@ func MakeGlobalNil(){
 
 func GetTitleAndYear(url string,wg *sync.WaitGroup){
 	defer wg.Done()
+	var movie struct{
+		Id  string `json:"pic"`
+	}
 	resp,err := http.Get(url)
 	if err!=nil{
 		fmt.Println(err)
@@ -93,43 +93,34 @@ func GetTitleAndYear(url string,wg *sync.WaitGroup){
 		return
 	}
 	defer resp.Body.Close()
-	var movieData string
-	if resp.StatusCode != 200 {
-		fmt.Println("Error statuscode: ",resp.StatusCode)
-		wg.Add(1)
-		GetTitleAndYear(url,wg)
-		return	
+	movie.Id = ""
+	
+	body,_:= ioutil.ReadAll(resp.Body)
+	data := string(body)
+	y:= strings.Index(data,"},{")
+	if y!=-1{
+		data = data[1:y+1]
+	}else{
+		data = data[1:len(data)-1]
+			
 	}
-	z := html.NewTokenizer(resp.Body)
-	for{
-		tt := z.Next()
-
-		if tt == html.ErrorToken{
-			return
-		}else if tt==html.StartTagToken{
-			t:= z.Token()
-			if t.Data=="h4"{
-				tt = z.Next()
-				tt = z.Next()
-				tt = z.Next()
-				t = z.Token()
-				movieData = strings.TrimSpace(t.Data)				
-				break
-			}
-		}
+	fmt.Println(data)
+	jsonParser := json.NewDecoder(strings.NewReader(data))
+	if err := jsonParser.Decode(&movie); err!=nil{
+		fmt.Println("Parsing config file: ",err)
 	}
-
-	movie.Name = movieData[:len(movieData)-6]
-	movie.Year = movieData[len(movieData)-5:len(movieData)-1]
-	movie.Name = strings.Replace(movie.Name, " ", "+", -1)
-	uri := "http://www.omdbapi.com/?t=" + movie.Name + "&y=" + movie.Year + "&plot=short&r=json"  
-	resp,err = http.Get(uri)
-
+	if movie.Id == ""{
+		return
+	}
+	rep := 7 - len(movie.Id)
+	url = "http://www.omdbapi.com/?i=tt" + strings.Repeat("0",rep) + movie.Id + "&plot=short&r=json"  
+	
+	resp,err = http.Get(url)
 	if err!=nil{
 		log.Fatal(err)
 	}
 	x := fileInfo{}
-	jsonParser := json.NewDecoder(resp.Body)
+	jsonParser = json.NewDecoder(resp.Body)
     if err := jsonParser.Decode(&x); err != nil {
         log.Fatal("parsing config file", err)
     }
