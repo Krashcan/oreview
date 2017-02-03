@@ -32,10 +32,6 @@ type node struct{
 	Right *(node) 
 }
 
-
-var root *node
-var Movies []fileInfo
-
 func main(){
 	router := httprouter.New()
 
@@ -58,16 +54,22 @@ func GetFileNames(w http.ResponseWriter,r *http.Request,_ httprouter.Params){
 }
 
 func ProcessFileNames(w http.ResponseWriter,r *http.Request,_ httprouter.Params){
-	MakeGlobalNil()
+	var root *node
+	var Movies []fileInfo
+	Movies = nil
+	root = nil
+
 	wg := new(sync.WaitGroup)
 	rawMovies := r.FormValue("files")
 	queryNames := strings.Split(rawMovies,"$`&")
-
+	
 	for i:=0;i<len(queryNames)-1;i++{
-		go GetTitleAndYear("https://www.opensubtitles.org/libs/suggest.php?format=json3&MovieName=" + url.QueryEscape(queryNames[i]),wg)
+		go GetTitleAndYear("https://www.opensubtitles.org/libs/suggest.php?format=json3&MovieName=" + url.QueryEscape(queryNames[i]),wg,&Movies,root)
     	wg.Add(1)
     }
-    wg.Wait()
+    wg.Wait()	
+	fmt.Println("Done")
+	
     t,err := template.ParseFiles("template/movies.tpl") 
 	if(err!=nil){
 		log.Fatal(err)
@@ -75,12 +77,8 @@ func ProcessFileNames(w http.ResponseWriter,r *http.Request,_ httprouter.Params)
 	t.Execute(w,Movies)	
 }
 
-func MakeGlobalNil(){
-	Movies = nil
-	root = nil
-}
 
-func GetTitleAndYear(url string,wg *sync.WaitGroup){
+func GetTitleAndYear(url string,wg *sync.WaitGroup,Movies *([]fileInfo),root *node){
 	defer wg.Done()
 	var movie struct{
 		Id  string `json:"pic"`
@@ -89,7 +87,7 @@ func GetTitleAndYear(url string,wg *sync.WaitGroup){
 	if err!=nil{
 		fmt.Println(err)
 		wg.Add(1)
-		GetTitleAndYear(url,wg)
+		GetTitleAndYear(url,wg,Movies,root)
 		return
 	}
 	defer resp.Body.Close()
@@ -104,12 +102,10 @@ func GetTitleAndYear(url string,wg *sync.WaitGroup){
 		data = data[1:len(data)-1]
 			
 	}
-	fmt.Println(data)
 	jsonParser := json.NewDecoder(strings.NewReader(data))
 	if err := jsonParser.Decode(&movie); err!=nil{
 		fmt.Println("Parsing config file: ",err)
 	}
-	fmt.Println(movie.Id)
 	if movie.Id == ""{
 		return
 	}
@@ -129,9 +125,9 @@ func GetTitleAndYear(url string,wg *sync.WaitGroup){
      	return
     }
     root = InsertTree(root,x)
-    Movies = nil
+    //*(Movies) = nil
     
-    InorderTraversal(root)
+    InorderTraversal(root,Movies)
     fmt.Println(x.Title,x.Year)
  }
 
@@ -149,12 +145,12 @@ func InsertTree(leaf *node,x fileInfo) *node{
 	
 }
 
-func InorderTraversal(leaf *node){
+func InorderTraversal(leaf *node,Movies *([]fileInfo)){
 	if leaf == nil{
 		return
 	}
-	InorderTraversal(leaf.Left)
-	Movies = append(Movies,leaf.Movie)
-	InorderTraversal(leaf.Right)
+	InorderTraversal(leaf.Left,Movies)
+	*(Movies) = append(*(Movies),leaf.Movie)
+	InorderTraversal(leaf.Right,Movies)
 }
 
