@@ -54,22 +54,21 @@ func GetFileNames(w http.ResponseWriter,r *http.Request,_ httprouter.Params){
 }
 
 func ProcessFileNames(w http.ResponseWriter,r *http.Request,_ httprouter.Params){
-	var root *node
 	var Movies []fileInfo
 	Movies = nil
-	root = nil
 
 	wg := new(sync.WaitGroup)
 	rawMovies := r.FormValue("files")
 	queryNames := strings.Split(rawMovies,"$`&")
 	
 	for i:=0;i<len(queryNames)-1;i++{
-		go GetTitleAndYear("https://www.opensubtitles.org/libs/suggest.php?format=json3&MovieName=" + url.QueryEscape(queryNames[i]),wg,&Movies,root)
+		go GetTitleAndYear("https://www.opensubtitles.org/libs/suggest.php?format=json3&MovieName=" + url.QueryEscape(queryNames[i]),wg,&Movies)
     	wg.Add(1)
     }
     wg.Wait()	
 	fmt.Println("Done")
 	
+	MergeSort(&Movies,0,len(Movies)-1)
     t,err := template.ParseFiles("template/movies.tpl") 
 	if(err!=nil){
 		log.Fatal(err)
@@ -78,7 +77,7 @@ func ProcessFileNames(w http.ResponseWriter,r *http.Request,_ httprouter.Params)
 }
 
 
-func GetTitleAndYear(url string,wg *sync.WaitGroup,Movies *([]fileInfo),root *node){
+func GetTitleAndYear(url string,wg *sync.WaitGroup,Movies *([]fileInfo)){
 	defer wg.Done()
 	var movie struct{
 		Id  string `json:"pic"`
@@ -87,7 +86,7 @@ func GetTitleAndYear(url string,wg *sync.WaitGroup,Movies *([]fileInfo),root *no
 	if err!=nil{
 		fmt.Println(err)
 		wg.Add(1)
-		GetTitleAndYear(url,wg,Movies,root)
+		GetTitleAndYear(url,wg,Movies)
 		return
 	}
 	defer resp.Body.Close()
@@ -124,33 +123,56 @@ func GetTitleAndYear(url string,wg *sync.WaitGroup,Movies *([]fileInfo),root *no
     if x == (fileInfo{}){
      	return
     }
-    root = InsertTree(root,x)
-    //*(Movies) = nil
-    
-    InorderTraversal(root,Movies)
+    *(Movies) = append(*(Movies),x)
     fmt.Println(x.Title,x.Year)
  }
 
-func InsertTree(leaf *node,x fileInfo) *node{
-	a,_ := strconv.ParseFloat(x.Rating,32)
-	
-	if leaf == nil{
-		return &node{x,nil,nil}
-	}else if b,_ := strconv.ParseFloat(leaf.Movie.Rating,32); a>b{
-		leaf.Left = InsertTree(leaf.Left,x)
-		return leaf
+func MergeSort(Movies *([]fileInfo),l int,r int){
+	if(l<r){
+		mid := l + (r-l)/2
+		MergeSort(Movies,l,mid)
+		MergeSort(Movies,mid+1,r)
+		Merge(Movies,l,mid,r)
 	}
-	leaf.Right = InsertTree(leaf.Right,x)
-	return leaf
-	
 }
 
-func InorderTraversal(leaf *node,Movies *([]fileInfo)){
-	if leaf == nil{
-		return
-	}
-	InorderTraversal(leaf.Left,Movies)
-	*(Movies) = append(*(Movies),leaf.Movie)
-	InorderTraversal(leaf.Right,Movies)
-}
+func Merge(Movies *([]fileInfo),l int,mid int,r int){
+	n1 :=  mid - l + 1 
+	n2 := r - mid 
 
+	var L []fileInfo
+	var R []fileInfo
+
+	for i:=0;i<n1;i++{
+		L = append(L,(*Movies)[l+i])
+	}
+	for i:=0;i<n2;i++{
+		R = append(R,(*Movies)[mid+1+i])
+	}
+	i:=0
+	j:=0
+	k:=l
+
+	for i<n1 && j<n2{
+		a,_ := strconv.ParseFloat(L[i].Rating,64)
+		b,_ := strconv.ParseFloat(R[j].Rating,64)
+		if a>=b{
+			(*Movies)[k]=L[i]
+			i++
+		}else{
+			(*Movies)[k]=R[j]
+			j++
+		}
+		k++
+	}
+	for i<n1{
+		(*Movies)[k] = L[i]
+		i++
+		k++
+	}
+	for j<n2{
+		(*Movies)[k] = R[j]
+		j++
+		k++
+	}
+}
