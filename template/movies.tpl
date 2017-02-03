@@ -53,8 +53,8 @@
     });
     </script>
     <footer>
-        <i class="star icon"></i> and Contribute on <a href="#">Github</a><br>
-        <i class="copyright icon"></i>Licensed by <a href="#">MIT</a>
+        <i class="star icon"></i> and Contribute on <a href="https://github.com/Krashcan/oreview/">Github</a><br>
+        <i class="copyright icon"></i>Licensed by <a href="https://github.com/Krashcan/oreview/blob/master/License.md">MIT</a>
     </footer>
 </body>
 </html>
