@@ -123,6 +123,9 @@ func GetTitleAndYear(url string,wg *sync.WaitGroup,Movies *([]fileInfo)){
     if x == (fileInfo{}){
      	return
     }
+    if x.Title =="Sample This"{
+    	return
+    }
     *(Movies) = append(*(Movies),x)
     fmt.Println(x.Title,x.Year)
  }

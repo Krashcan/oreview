@@ -14,9 +14,10 @@
                 <p>Oreview</p>
             </div>
     </header>
-    <div class="ui special cards">
+    <div class="ui four doubling stackable special cards">
         {{range $i,$f:= .}}
-      <div class="card">
+    
+      <div class="ui fluid card">
         <div class="blurring dimmable image">
           <div class="ui dimmer">
             <div class="content">
@@ -48,6 +49,7 @@
       </div>
         {{end}}
     </div>
+       
     <script>
     $('.special.cards .image').dimmer({
         on: 'hover'
