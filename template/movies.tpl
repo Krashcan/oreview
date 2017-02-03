@@ -21,28 +21,29 @@
           <div class="ui dimmer">
             <div class="content">
               <div class="center">
-                <p >IMDb rating</p>
-                <h2>{{$f.Rating}}</h2>
+                <h3>{{$f.Description}}</h3>
               </div>
             </div>
           </div>
           <img src="{{$f.Image}}">
         </div>
         <div class="content">
-          <a class="header">{{$f.Title}}</a>
+          <p class="header">{{$f.Title}}</p>
+          <p class="header"><b>IMDb {{$f.Rating}}</b></p>
           <div class="meta">
             <span class="date">{{$f.Year}}</span>
           </div>
         </div>
         <div class="extra content">
-          <a>
-            <i class="hourglass end icon"></i>
-            {{$f.Runtime}}
-          </a>
-          <a>
-            <i class="comment"></i>
-            {{$f.Description}}
-          </a>      
+            <p>
+                <i class="comment"></i>
+                {{$f.Genre}}
+            </p>
+            <p>
+                <i class="hourglass end icon"></i>
+                {{$f.Runtime}}
+            </p>
+            
         </div>
       </div>
         {{end}}
